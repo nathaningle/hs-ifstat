@@ -1,14 +1,14 @@
--- |
--- Module      : Data.Conduit.EndOnQ
--- Copyright   : Nathan Ingle
--- Licence     : BSD2
--- Maintainer  : elgni.nahtan@gmail.com
--- Stablility  : experimental
--- Portability : non-portable
---
--- Provides a conduit to watch standard input and terminate upon receipt of 'q'.
---
+{- |
+Module      : Data.Conduit.EndOnQ
+Copyright   : (c) Nathan Ingle
+Licence     : BSD2
 
+Maintainer  : elgni.nahtan@gmail.com
+Stability   : experimental
+Portability : portable
+
+Provides a conduit to watch standard input and terminate upon receipt of 'q'.
+-}
 module Data.Conduit.EndOnQ (endOnQ) where
 
 import Data.Conduit

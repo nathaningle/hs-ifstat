@@ -1,14 +1,14 @@
--- |
--- Module      : Data.Conduit.Delay
--- Copyright   : Nathan Ingle
--- Licence     : BSD2
--- Maintainer  : elgni.nahtan@gmail.com
--- Stablility  : experimental
--- Portability : non-portable
---
--- Provides a conduit to insert a delay.
---
+{- |
+Module      : Data.Conduit.Delay
+Copyright   : (c) Nathan Ingle
+Licence     : BSD2
 
+Maintainer  : elgni.nahtan@gmail.com
+Stability   : experimental
+Portability : non-portable (threadDelay requires GHC)
+
+Provides a conduit to insert a delay.
+-}
 module Data.Conduit.Delay (delay) where
 
 import Data.Conduit

@@ -1,14 +1,14 @@
--- |
--- Module      : ifstat.hs
--- Copyright   : Nathan Ingle
--- Licence     : BSD2
--- Maintainer  : elgni.nahtan@gmail.com
--- Stablility  : experimental
--- Portability : non-portable
---
--- Print network interface traffic statistics.
---
+{- |
+Module      : Main.hs
+Copyright   : (c) Nathan Ingle
+Licence     : BSD2
 
+Maintainer  : elgni.nahtan@gmail.com
+Stability   : experimental
+Portability : non-portable (probably)
+
+Print network interface traffic statistics.
+-}
 module Main where
 
 import Network.Pcap

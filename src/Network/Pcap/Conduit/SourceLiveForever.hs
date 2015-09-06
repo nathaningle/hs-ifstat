@@ -1,14 +1,15 @@
--- |
--- Module      : Network.Pcap.Conduit.SourceLiveForever
--- Copyright   : Nathan Ingle
--- Licence     : BSD2
--- Maintainer  : elgni.nahtan@gmail.com
--- Stablility  : experimental
--- Portability : non-portable
---
--- Extends Austin Seipp's pcap-conduit:
--- https://github.com/thoughtpolice/pcap-conduit/
---
+{- |
+Module      : Network.Pcap.Conduit.SourceLiveForever
+Copyright   : (c) Nathan Ingle
+Licence     : BSD2
+
+Maintainer  : elgni.nahtan@gmail.com
+Stability   : experimental
+Portability : non-portable (probably)
+
+Extends Austin Seipp's pcap-conduit:
+https://github.com/thoughtpolice/pcap-conduit/
+-}
 
 module Network.Pcap.Conduit.SourceLiveForever (sourceLiveForever) where
 
