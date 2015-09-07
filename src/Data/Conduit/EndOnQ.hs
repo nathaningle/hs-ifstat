@@ -17,9 +17,6 @@ import System.IO
 
 endOnQ :: Conduit a IO a
 endOnQ = do
-	liftIO $ hSetBuffering stdin NoBuffering
-	liftIO $ hSetEcho stdin False
-	
 	keyPressed <- liftIO $ hReady stdin
 	if keyPressed
 		then do

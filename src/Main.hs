@@ -20,6 +20,7 @@ import Data.Conduit.Lift (evalStateC)
 import Data.Conduit.EndOnQ
 import Data.Word (Word32)
 import Control.Monad.State
+import System.IO
 
 preambleEtc :: Integer
 preambleEtc = 24
@@ -53,6 +54,12 @@ sumSink = CL.map getHdrWireLength =$ CL.fold (+) 0
 
 main :: IO ()
 main = do
+	origBuffering <- hGetBuffering stdin
+	origEcho <- hGetEcho stdin
+	hSetBuffering stdin NoBuffering
+	hSetEcho stdin False
 	putStrLn "Press q to quit"
 	total <- sourceLiveForever "eth0" 65535 True 500000 $$ endOnQ =$ printBps =$ sumSink
+	hSetEcho stdin origEcho
+	hSetBuffering stdin origBuffering
 	putStrLn $ "Got " ++ show total ++ " bits"
