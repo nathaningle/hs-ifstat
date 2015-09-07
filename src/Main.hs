@@ -21,14 +21,20 @@ import Data.Conduit.EndOnQ
 import Data.Word (Word32)
 import Control.Monad.State
 
-preambleEtc :: Integer
-preambleEtc = 24
+-- Note that pcap doesn't/can't capture Ethernet preamble, start frame delimiter,
+-- frame check sequence or interpacket gap.  These total 24 bytes, which we
+-- should take into account if we're measuring interface utilisation.
+getPacketBits :: Packet -> Integer
+getPacketBits (h, _) = 8 * packetBytes
+	where
+		packetBytes = preambleEtc + (toInteger $ hdrWireLength h)
+		preambleEtc = 24
 
 printPacketGroup :: [Packet] -> IO ()
 printPacketGroup ps = putBpsStr
 	where
 		putBpsStr = putStrLn $ show (hdrSeconds (fst (head ps))) ++ ": " ++ show bps
-		bps = sum $ map ((preambleEtc +) . toInteger . hdrWireLength . fst) ps
+		bps = sum $ map getPacketBits ps
 
 printZeroSecs :: Word32 -> Word32 -> IO ()
 printZeroSecs 0 _ = return ()
@@ -48,8 +54,7 @@ printBps = CL.groupBy isSameSecond =$= printPacketGroups =$= CL.concat
 	where isSameSecond (h1, _) (h2, _) = hdrSeconds h1 == hdrSeconds h2
 
 sumSink :: Sink Packet IO Integer
-sumSink = CL.map getHdrWireLength =$ CL.fold (+) 0
-	where getHdrWireLength = toInteger . hdrWireLength . fst
+sumSink = CL.map getPacketBits =$ CL.fold (+) 0
 
 main :: IO ()
 main = do
