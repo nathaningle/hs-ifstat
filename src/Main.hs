@@ -21,6 +21,8 @@ import Data.Conduit.EndOnQ
 import Data.Word (Word32)
 import Control.Monad.State
 
+import ProcessArgs (getIfaceName)
+
 -- Note that pcap doesn't/can't capture Ethernet preamble, start frame delimiter,
 -- frame check sequence or interpacket gap.  These total 24 bytes, which we
 -- should take into account if we're measuring interface utilisation.
@@ -58,6 +60,8 @@ sumSink = CL.map getPacketBits =$ CL.fold (+) 0
 
 main :: IO ()
 main = do
+	ifaceName <- getIfaceName
+	putStrLn $ "Using interface " ++ ifaceName
 	putStrLn "Press q to quit"
-	total <- sourceLiveForever "eth0" 65535 True 500000 $$ endOnQ =$ printBps =$ sumSink
+	total <- sourceLiveForever ifaceName 65535 True 500000 $$ endOnQ =$ printBps =$ sumSink
 	putStrLn $ "Got " ++ show total ++ " bits"
