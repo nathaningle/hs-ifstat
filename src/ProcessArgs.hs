@@ -9,20 +9,21 @@ Portability : non-portable (probably)
 
 Process command line arguments.
 -}
-module ProcessArgs where
 
-import System.Environment (getArgs)
-import Data.Bits ((.&.))
+module ProcessArgs (validateArgs, sourceFromArgs) where
+
+import System.Exit (exitFailure, exitSuccess)
 import Network.Info
+import Network.Pcap.Conduit (sourceOffline, Packet)
+import Network.Pcap.Conduit.SourceLiveForever
+import Data.Bits ((.&.))
+import Data.Conduit (Source)
+import Control.Monad.IO.Class (liftIO, MonadIO)
 
-getIfaceName :: IO String
-getIfaceName = do
-	args <- getArgs
+mostInterestingIfaceName :: IO String
+mostInterestingIfaceName = do
 	ifaces <- getNetworkInterfaces
-	let ifaceArgs = filter (flip elem (map name ifaces)) args in
-		if (length ifaceArgs > 0)
-			then return $ head ifaceArgs
-			else return $ name (head (interestingIfaces ifaces))
+	return $ name (head (interestingIfaces ifaces))
 
 interestingIfaces :: [NetworkInterface] -> [NetworkInterface]
 interestingIfaces = filter (not . isBoring)
@@ -35,3 +36,36 @@ isLoopbackIP (IPv4 ip) = (ip .&. loopMask) == loopSubnet
 	where
 		loopSubnet = 0x0000007f  -- 127.0.0.0
 		loopMask   = 0x000000ff  -- 255.0.0.0
+
+-- Exit the program unless the arguments are valid.
+validateArgs :: [String] -> IO ()
+validateArgs args
+	| length args == 0 = return ()
+	| length args == 1 = case (head args) of
+		"-h"     -> printUsageAndExit
+		"--help" -> printUsageAndExit
+		_        -> printUsageAndDie
+	| length args == 2 = case (head args) of
+		"-i"     -> return ()
+		"-f"     -> return ()
+		_        -> printUsageAndDie
+	| otherwise = printUsageAndDie
+	where
+		printUsageAndExit = (putStrLn usageMsg) >> exitSuccess
+		printUsageAndDie  = (putStrLn usageMsg) >> exitFailure
+		usageMsg = "Usage: ifstat [-h | -i interface | -f pcap_file]"
+
+-- You must run validateArgs before calling this, because the pattern matching
+-- is non-exhaustive.
+sourceFromArgs :: [String] -> Source IO Packet
+sourceFromArgs args
+	| length args == 0 = defaultSource
+	| length args == 2 = case (head args) of
+		"-i" -> liveSource (last args)
+		"-f" -> sourceOffline (last args)
+	where
+		defaultSource = (liftIO mostInterestingIfaceName) >>= liveSource
+		liveSource ifaceName = do
+			liftIO $ putStrLn ("Using interface " ++ ifaceName)
+			liftIO $ putStrLn "Press q to quit"
+			sourceLiveForever ifaceName 65535 True 500000

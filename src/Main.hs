@@ -12,17 +12,16 @@ Print network interface traffic statistics.
 
 module Main where
 
-import Network.Pcap.Conduit.SourceLiveForever
+import System.Environment (getArgs)
 import Network.Pcap.Conduit.PrintBps
 import Data.Conduit
 import Data.Conduit.EndOnQ
 
-import ProcessArgs (getIfaceName)
+import ProcessArgs
 
 main :: IO ()
 main = do
-	ifaceName <- getIfaceName
-	putStrLn $ "Using interface " ++ ifaceName
-	putStrLn "Press q to quit"
-	total <- sourceLiveForever ifaceName 65535 True 500000 $$ endOnQ =$ printBps =$ sumSink
+	args <- getArgs
+	validateArgs args
+	total <- (sourceFromArgs args) $$ endOnQ =$ printBps =$ sumSink
 	putStrLn $ "Got " ++ show total ++ " bits"
