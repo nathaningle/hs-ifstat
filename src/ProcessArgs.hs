@@ -17,7 +17,8 @@ import Network.Info
 import Network.Pcap.Conduit (sourceOffline, Packet)
 import Network.Pcap.Conduit.SourceLiveForever
 import Data.Bits ((.&.))
-import Data.Conduit (Source)
+import Data.Conduit
+import Data.Conduit.EndOnQ
 import Control.Monad.IO.Class (liftIO, MonadIO)
 
 mostInterestingIfaceName :: IO String
@@ -68,4 +69,4 @@ sourceFromArgs args
 		liveSource ifaceName = do
 			liftIO $ putStrLn ("Using interface " ++ ifaceName)
 			liftIO $ putStrLn "Press q to quit"
-			sourceLiveForever ifaceName 65535 True 500000
+			sourceLiveForever ifaceName 65535 True 500000 $= endOnQ
